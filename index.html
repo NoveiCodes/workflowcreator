@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Creator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Workflow Creator</h1>
+        <form id="workflowForm">
+            <div class="form-group">
+                <label for="purpose">Purpose</label>
+                <textarea id="purpose" name="purpose" rows="4" placeholder="What is the main purpose of the automation? Example: I want an automation that summarizes and categorizes all emails I've received this week. I want the summary emailed to my kiwi email." required></textarea>
+                <span class="error-message" id="purposeError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="trigger">Trigger</label>
+                <textarea id="trigger" name="trigger" rows="4" placeholder="When will the automation be triggered and how frequently? Example: I want the summaries sent every Friday 2PM CET. Or: I want a summary sent upon receipt of each email." required></textarea>
+                <span class="error-message" id="triggerError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="expectedOutput">Expected Output</label>
+                <textarea id="expectedOutput" name="expectedOutput" rows="4" placeholder="What is the expected outcome for the automation? Example: The automation should generate an email that categorizes emails along with the summary for each." required></textarea>
+                <span class="error-message" id="expectedOutputError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="workflow">Workflow</label>
+                <textarea id="workflow" name="workflow" rows="6" placeholder="Describe the process step-by-step. Example:
+1. Every Friday 2PM CET, check all emails received since Monday.
+2. Categorize each email as Priority, Meeting, and Junk.
+3. Send me an email at name@kiwi.com summarizing and categorizing my emails for the week.
+4. I want all Junk emails to be deleted." required></textarea>
+                <span class="error-message" id="workflowError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="tools">Tools</label>
+                <select id="tools" name="tools" multiple required>
+                    <option value="gdrive">Google Drive</option>
+                    <option value="gdocs">Google Docs</option>
+                    <option value="gsheets">Google Sheets</option>
+                    <option value="gmail">Gmail</option>
+                    <option value="slack">Slack</option>
+                    <option value="llm">LLM</option>
+                </select>
+                <span class="error-message" id="toolsError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Please provide your kiwi email." required>
+                <span class="error-message" id="emailError"></span>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+
+        <div id="loadingScreen" class="loading-screen" style="display: none;">
+            <p>Creating Workflow. Approximately 5 minutes.</p>
+            <!-- You can add a spinner or animation here -->
+        </div>
+
+        <div id="responseMessage" class="response-message" style="display: none;">
+            <!-- Success or error messages will be displayed here -->
+        </div>
+        
+        <button id="createAnotherWorkflowBtn" class="submit-btn" style="display: none; margin-top: 20px;">Create Another Workflow</button>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
