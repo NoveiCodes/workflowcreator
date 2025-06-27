@@ -66,6 +66,51 @@ h1 {
     min-height: 100px; /* Minimum height for multi-select */
 }
 
+/* Styles for Custom Multi-select Tools Field */
+.tools-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Spacing between tool options */
+    margin-bottom: 5px; /* Space before helper text */
+}
+
+.tool-option {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 20px; /* Pill shape */
+    cursor: pointer;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    color: #333;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none; /* Prevent text selection on click */
+}
+
+.tool-option:hover {
+    border-color: #00a58e;
+    background-color: #e8edf1; /* Accent color on hover */
+}
+
+.tool-option.selected {
+    background-color: #00a58e; /* Primary brand color for selected */
+    color: #ffffff;
+    border-color: #008773; /* Darker shade of primary for border */
+}
+
+/* Optional: Add a checkmark to selected items */
+.tool-option.selected::before {
+    content: '✓ '; /* Simple checkmark */
+    font-weight: bold;
+}
+
+.helper-text {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+    text-align: left;
+}
+/* End of Styles for Custom Multi-select Tools Field */
 
 .submit-btn {
     background-color: #00a58e; /* Primary brand color */

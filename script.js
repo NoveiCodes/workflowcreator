@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingScreen = document.getElementById('loadingScreen');
     const responseMessageContainer = document.getElementById('responseMessage');
     const createAnotherWorkflowBtn = document.getElementById('createAnotherWorkflowBtn');
+    const toolsContainer = document.getElementById('toolsContainer');
+    const toolOptions = document.querySelectorAll('.tool-option');
 
     // Input fields and their error message elements
     const fields = {
@@ -26,11 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             errorElement: document.getElementById('workflowError'),
             defaultError: "Workflow description is required."
         },
-        tools: {
-            input: document.getElementById('tools'),
-            errorElement: document.getElementById('toolsError'),
-            defaultError: "At least one tool must be selected."
-        },
+        // 'tools' field is handled differently now
+        toolsErrorElement: document.getElementById('toolsError'), // Keep reference to error element
         email: {
             input: document.getElementById('email'),
             errorElement: document.getElementById('emailError'),
@@ -56,16 +55,20 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingScreen.style.display = 'flex';
 
 
-        const formData = new FormData(form);
+        const formData = new FormData(form); // Still useful for other fields
         const data = {};
         formData.forEach((value, key) => {
-            if (key === 'tools') {
-                if (!data[key]) {
-                    data[key] = [];
-                }
-                data[key].push(value);
-            } else {
+            // Exclude 'tools' as it's handled manually
+            if (key !== 'tools') { // This condition might not be strictly necessary if 'tools' has no name attribute
                 data[key] = value;
+            }
+        });
+
+        // Manually collect selected tools
+        data.tools = [];
+        toolOptions.forEach(option => {
+            if (option.classList.contains('selected')) {
+                data.tools.push(option.getAttribute('data-value'));
             }
         });
 
@@ -114,12 +117,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     createAnotherWorkflowBtn.addEventListener('click', () => {
-        form.reset();
+        form.reset(); // Clears standard input fields
         clearAllErrors();
+        toolOptions.forEach(option => option.classList.remove('selected')); // Deselect custom tools
         form.style.display = 'block';
         responseMessageContainer.style.display = 'none';
         createAnotherWorkflowBtn.style.display = 'none';
     });
+
+    // Event listener for tool selection
+    if (toolsContainer) {
+        toolsContainer.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('tool-option')) {
+                target.classList.toggle('selected');
+                // Clear error message for tools if any tool is selected
+                if (document.querySelector('.tool-option.selected')) {
+                    fields.toolsErrorElement.textContent = '';
+                }
+            }
+        });
+    }
+
 
     function validateForm() {
         let isValid = true;
@@ -128,40 +147,48 @@ document.addEventListener('DOMContentLoaded', () => {
         ['purpose', 'trigger', 'expectedOutput', 'workflow'].forEach(fieldName => {
             const field = fields[fieldName];
             if (!field.input.value.trim()) {
-                showError(field, field.defaultError);
+                showError(field.errorElement, field.defaultError);
                 isValid = false;
             }
         });
 
-        // Validate tools (multi-select)
-        const toolsField = fields.tools;
-        if (toolsField.input.selectedOptions.length === 0) {
-            showError(toolsField, toolsField.defaultError);
+        // Validate custom tools
+        const selectedTools = document.querySelectorAll('.tool-option.selected');
+        if (selectedTools.length === 0) {
+            showError(fields.toolsErrorElement, "Please select at least one tool.");
             isValid = false;
         }
 
         // Validate email
         const emailField = fields.email;
         if (!emailField.input.value.trim()) {
-            showError(emailField, emailField.defaultError);
+            showError(emailField.errorElement, emailField.defaultError); // Pass errorElement
             isValid = false;
         } else if (!emailField.input.value.endsWith('@kiwi.com')) {
-            showError(emailField, emailField.kiwiError);
+            showError(emailField.errorElement, emailField.kiwiError); // Pass errorElement
             isValid = false;
         }
         
         return isValid;
     }
 
-    function showError(field, message) {
-        field.errorElement.textContent = message;
-        // field.input.classList.add('error-input'); // Optional: add class to highlight input
+    function showError(errorElement, message) { // Modified to accept errorElement directly
+        if (errorElement) {
+            errorElement.textContent = message;
+        }
     }
 
     function clearAllErrors() {
-        for (const key in fields) {
-            fields[key].errorElement.textContent = '';
-            // fields[key].input.classList.remove('error-input'); // Optional: remove highlight class
+        // Clear errors for standard fields
+        ['purpose', 'trigger', 'expectedOutput', 'workflow', 'email'].forEach(fieldName => {
+            const field = fields[fieldName];
+            if (field && field.errorElement) {
+                field.errorElement.textContent = '';
+            }
+        });
+        // Clear error for tools
+        if (fields.toolsErrorElement) {
+            fields.toolsErrorElement.textContent = '';
         }
     }
 });

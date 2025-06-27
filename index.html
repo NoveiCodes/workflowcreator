@@ -43,14 +43,15 @@
 
             <div class="form-group">
                 <label for="tools">Tools</label>
-                <select id="tools" name="tools" multiple required>
-                    <option value="gdrive">Google Drive</option>
-                    <option value="gdocs">Google Docs</option>
-                    <option value="gsheets">Google Sheets</option>
-                    <option value="gmail">Gmail</option>
-                    <option value="slack">Slack</option>
-                    <option value="llm">LLM</option>
-                </select>
+                <div id="toolsContainer" class="tools-container">
+                    <div class="tool-option" data-value="gdrive">Google Drive</div>
+                    <div class="tool-option" data-value="gdocs">Google Docs</div>
+                    <div class="tool-option" data-value="gsheets">Google Sheets</div>
+                    <div class="tool-option" data-value="gmail">Gmail</div>
+                    <div class="tool-option" data-value="slack">Slack</div>
+                    <div class="tool-option" data-value="llm">LLM</div>
+                </div>
+                <small class="helper-text">Select all the tools and apps that this automation will interact with.</small>
                 <span class="error-message" id="toolsError"></span>
             </div>
 
