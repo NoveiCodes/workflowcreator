@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const webhookUrl = 'https://kiwicom.app.n8n.cloud/webhook-test/f831c5d5-975e-4877-98e1-b50990c18194';
+        const webhookUrl = 'https://kiwicom.app.n8n.cloud/webhook/f831c5d5-975e-4877-98e1-b50990c18194';
 
         try {
             const response = await fetch(webhookUrl, {
