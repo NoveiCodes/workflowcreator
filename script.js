@@ -6,25 +6,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const toolsContainer = document.getElementById('toolsContainer');
     const toolOptions = document.querySelectorAll('.tool-option');
 
+    // Modal elements for enlarged text editing
+    const enlargeTextModal = document.getElementById('enlargeTextModal');
+    const modalTextarea = document.getElementById('modalTextarea');
+    const modalDoneButton = document.getElementById('modalDoneButton');
+    const modalTitle = document.getElementById('modalTitle');
+    let currentEditingTextarea = null; // To store reference to the textarea being edited in modal
+
     // Input fields and their error message elements
     const fields = {
         purpose: {
             input: document.getElementById('purpose'),
+            label: "Purpose",
             errorElement: document.getElementById('purposeError'),
             defaultError: "Purpose is required."
         },
         trigger: {
             input: document.getElementById('trigger'),
+            label: "Trigger",
             errorElement: document.getElementById('triggerError'),
             defaultError: "Trigger is required."
         },
         expectedOutput: {
             input: document.getElementById('expectedOutput'),
+            label: "Expected Output",
             errorElement: document.getElementById('expectedOutputError'),
             defaultError: "Expected Output is required."
         },
         workflow: {
             input: document.getElementById('workflow'),
+            label: "Workflow",
             errorElement: document.getElementById('workflowError'),
             defaultError: "Workflow description is required."
         },
@@ -191,4 +202,62 @@ document.addEventListener('DOMContentLoaded', () => {
             fields.toolsErrorElement.textContent = '';
         }
     }
+
+    // Function to initialize enlarge icons for textareas
+    function initializeEnlargeIcons() {
+        const textareasToEnlarge = [fields.purpose, fields.trigger, fields.expectedOutput, fields.workflow];
+
+        textareasToEnlarge.forEach(field => {
+            const textarea = field.input;
+            const wrapper = textarea.parentElement; // Should be .textarea-wrapper
+
+            if (wrapper && wrapper.classList.contains('textarea-wrapper')) {
+                const icon = document.createElement('span');
+                icon.classList.add('enlarge-icon');
+                icon.innerHTML = '&#x26F6;'; // Unicode for expand arrows (may need adjustment or SVG) - Using a different one: ⛶ (SQUARE WITH DIAGONAL CROSSHATCH FILL) or ✥ (MALTESE CROSS) - let's try ↗
+                icon.innerHTML = '&#x2197;'; // North East Arrow (simple expand)
+                icon.title = 'Enlarge editor'; // Tooltip
+
+                icon.addEventListener('click', () => {
+                    currentEditingTextarea = textarea;
+                    modalTextarea.value = textarea.value;
+                    modalTitle.textContent = `Edit ${field.label || 'Text'}`; // Set modal title
+                    enlargeTextModal.style.display = 'flex';
+                    modalTextarea.focus();
+                });
+                wrapper.appendChild(icon);
+            }
+        });
+    }
+
+    // Event listener for modal "Done" button
+    if (modalDoneButton) {
+        modalDoneButton.addEventListener('click', () => {
+            if (currentEditingTextarea) {
+                currentEditingTextarea.value = modalTextarea.value;
+                // Optionally, trigger an input event if other parts of the app react to it
+                // currentEditingTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            enlargeTextModal.style.display = 'none';
+            modalTextarea.value = ''; // Clear modal textarea
+            currentEditingTextarea = null;
+        });
+    }
+
+    // Optional: Close modal if user clicks on the overlay
+    if (enlargeTextModal) {
+        enlargeTextModal.addEventListener('click', (event) => {
+            if (event.target === enlargeTextModal) { // Clicked on the overlay itself
+                if (currentEditingTextarea) { // Save changes even when clicking outside
+                    currentEditingTextarea.value = modalTextarea.value;
+                }
+                enlargeTextModal.style.display = 'none';
+                modalTextarea.value = '';
+                currentEditingTextarea = null;
+            }
+        });
+    }
+
+    // Initialize features
+    initializeEnlargeIcons();
 });
