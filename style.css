@@ -168,30 +168,39 @@ h1 {
     transform: translateY(0);
 }
 
-/* Modal Styles */
+/* General Modal Overlay Styles (used by both enlarge text and success modal) */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex; /* Changed from none to flex for easier JS toggle */
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent backdrop */
+    display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000; /* Higher than loading screen if they could overlap */
-    /* display: none; Will be controlled by JS */
+    z-index: 2000; /* Ensure it's above other content */
+    opacity: 0; /* Initially hidden for fade-in */
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.modal-content {
+.modal-overlay.active { /* JavaScript will toggle this class */
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Enlarge Text Modal Specific Content Styles */
+.modal-content { /* This is for the enlarge text modal */
     background-color: #fff;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     width: 80%;
-    max-width: 800px;
+    max-width: 800px; /* Existing style for enlarge text modal */
     display: flex;
     flex-direction: column;
+    position: relative; /* For potential internal absolute positioning if needed */
 }
 
 .modal-content textarea {
@@ -208,7 +217,7 @@ h1 {
     overflow-y: auto; /* Scroll for overflow */
 }
 
-.modal-content button {
+.modal-content button { /* For enlarge text modal button */
     background-color: #00a58e; /* Primary brand color */
     color: #ffffff;
     padding: 12px 25px;
@@ -223,6 +232,84 @@ h1 {
 
 .modal-content button:hover {
     background-color: #008773; /* Darker shade for hover */
+}
+
+/* Success Modal Specific Styles */
+.success-modal-content {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    width: 90%;
+    max-width: 500px; /* Max width for the success modal */
+    position: relative; /* For positioning the close button and confetti canvas */
+    z-index: 2001; /* Above the overlay */
+    transform: scale(0.9); /* For pop-in effect */
+    transition: transform 0.3s ease-out;
+}
+
+.modal-overlay.active .success-modal-content {
+    transform: scale(1);
+}
+
+.success-modal-content .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.success-modal-content .close-button:hover {
+    color: #333;
+}
+
+.success-modal-content h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px; /* Large, bold text */
+    font-weight: 600;
+    color: #00a58e; /* Primary brand color */
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.success-modal-content p {
+    font-size: 16px; /* Smaller font size */
+    color: #555; /* Muted color */
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.success-modal-content .submit-btn { /* Re-style button if needed or ensure it inherits globally */
+    display: block;
+    width: 100%;
+    max-width: 300px; /* Limit button width */
+    margin: 0 auto; /* Center button */
+    padding: 12px 20px;
+}
+
+/* Party Popper Styles (example - these would be dynamically added/styled via JS) */
+.party-popper {
+    position: absolute;
+    width: 50px; /* Adjust as needed */
+    height: 50px; /* Adjust as needed */
+    background-image: url('https://example.com/party-popper.png'); /* Replace with actual or SVG */
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: popAndFade 2s ease-out forwards;
+    z-index: 2050; /* Above modal, below confetti if confetti is on a separate higher canvas */
+}
+
+@keyframes popAndFade {
+    0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+    20% { transform: scale(1.2) rotate(-15deg); opacity: 1; }
+    40% { transform: scale(1) rotate(15deg); opacity: 1; }
+    100% { transform: scale(0.8) rotate(0deg) translateY(20px); opacity: 0; }
 }
 
 
