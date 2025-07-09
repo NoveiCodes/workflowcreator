@@ -31,39 +31,30 @@ document.addEventListener('DOMContentLoaded', () => {
     */
 
     // Input fields and their error message elements for VALIDATION
-
     const fields = {
         purpose: {
             input: document.getElementById('purpose'),
             errorElement: document.getElementById('purposeError'),
-fix/form-validation-and-submit
             validations: [ { type: 'required', message: "Purpose is required." } ],
-
             label: "Purpose" // For enlarge modal title
         },
         trigger: {
             input: document.getElementById('trigger'),
             errorElement: document.getElementById('triggerError'),
-
             validations: [ { type: 'required', message: "Trigger is required." } ],
             label: "Trigger"
-
         },
         expectedOutput: {
             input: document.getElementById('expectedOutput'),
             errorElement: document.getElementById('expectedOutputError'),
-
             validations: [ { type: 'required', message: "Expected Output is required." } ],
             label: "Expected Output"
-
         },
         workflow: {
             input: document.getElementById('workflow'),
             errorElement: document.getElementById('workflowError'),
-
             validations: [ { type: 'required', message: "Workflow is required." } ],
             label: "Workflow"
-
         },
         email: {
             input: document.getElementById('email'),
@@ -80,19 +71,18 @@ fix/form-validation-and-submit
         event.preventDefault();
         clearAllErrors();
 
-
         const isValid = validateForm();
-
+        console.log("Submit handler: validateForm() returned:", isValid); // Submit handler log
 
         if (!isValid) {
+            console.log("Submit handler: Validation failed. Submission stopped."); // Submit handler log
             return; // Stop if validation fails
         }
+        console.log("Submit handler: Validation passed. Proceeding with submission."); // Submit handler log
 
         // Show success modal immediately
         successModal.classList.add('active');
-
         // startConfetti(); // Commented out: Confetti removal
-
 
         // Prepare form data for webhook
         const formData = new FormData(form);
@@ -159,13 +149,11 @@ fix/form-validation-and-submit
             const target = event.target;
             if (target.classList.contains('tool-option')) {
                 target.classList.toggle('selected');
-                // No error clearing for tools needed here as it's not a required field for validation.
             }
         });
     }
 
     function isValidEmailFormat(email) {
-        // Basic email validation regex
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
@@ -173,100 +161,90 @@ fix/form-validation-and-submit
     function validateForm() {
         let firstInvalidField = null;
         let formIsValid = true;
-        // Order of fields for focusing: Purpose, Trigger, Expected Output, Workflow, Email
         const fieldNamesInOrder = ['purpose', 'trigger', 'expectedOutput', 'workflow', 'email'];
-
 
         for (const fieldName of fieldNamesInOrder) {
             const field = fields[fieldName];
             const value = field.input.value.trim();
-            // Clear previous error styling for this field (will be added back if error)
             field.input.classList.remove('input-error');
             field.errorElement.textContent = '';
 
             for (const validation of field.validations) {
-                let currentFieldValid = true; // Assume valid for this specific validation rule first
+                let currentFieldValid = true;
                 if (validation.type === 'required') {
                     if (!value) {
+                        if (fieldName === 'email') console.log(`Email validation: Required check failed for email: "${value}"`);
                         showError(field, validation.message);
-                        formIsValid = false;
-                        currentFieldValid = false;
+                        formIsValid = false; currentFieldValid = false;
                         if (!firstInvalidField) firstInvalidField = field.input;
                     }
                 } else if (validation.type === 'emailFormat') {
-                    if (value && !isValidEmailFormat(value)) { // Only if there's a value and it's bad format
+                    if (value && !isValidEmailFormat(value)) {
+                        if (fieldName === 'email') console.log(`Email validation: Format check failed for email: "${value}". isValidEmailFormat: ${isValidEmailFormat(value)}. Message: ${validation.message}`);
                         showError(field, validation.message);
-                        formIsValid = false;
-                        currentFieldValid = false;
+                        formIsValid = false; currentFieldValid = false;
                         if (!firstInvalidField) firstInvalidField = field.input;
+                    } else if (fieldName === 'email' && value) {
+                         console.log(`Email validation: Format check passed for email: "${value}". isValidEmailFormat: ${isValidEmailFormat(value)}`);
                     }
                 } else if (validation.type === 'domain') {
-                    // This rule should only apply if the email has some value and has a valid format so far
-                    if (value && isValidEmailFormat(value) && !value.endsWith(validation.domain)) {
-                        showError(field, validation.message);
-                        formIsValid = false;
-                        currentFieldValid = false;
-                        if (!firstInvalidField) firstInvalidField = field.input;
+                    if (fieldName === 'email') { // Ensure this is only for the email field
+                        console.log(`Email validation (domain): Current email value: "${value}"`);
+                        const isFormatValid = isValidEmailFormat(value);
+                        console.log(`Email validation (domain): isFormatValid: ${isFormatValid}`);
+                        const endsWithDomain = value.endsWith(validation.domain);
+                        console.log(`Email validation (domain): endsWith ${validation.domain}? ${endsWithDomain}`);
+
+                        const domainCheckCondition = (value && isFormatValid && !endsWithDomain);
+                        console.log(`Email validation (domain): Overall domainCheckCondition: ${domainCheckCondition}`);
+
+                        if (domainCheckCondition) {
+                            console.log(`Email validation (domain): Domain error triggered. Message: ${validation.message}`);
+                            showError(field, validation.message);
+                            formIsValid = false; currentFieldValid = false;
+                            if (!firstInvalidField) firstInvalidField = field.input;
+                        }
                     }
                 }
-                if (!currentFieldValid) break; // Stop further validation for THIS field if one rule failed
+                if (!currentFieldValid) break;
             }
         }
-
-        if (firstInvalidField) {
-            firstInvalidField.focus();
-        }
+        if (firstInvalidField) firstInvalidField.focus();
+        console.log(`validateForm is returning: ${formIsValid}`);
         return formIsValid;
     }
 
     function showError(field, message) {
-        if (field.errorElement) {
-            field.errorElement.textContent = message;
-        }
-        field.input.classList.add('input-error'); // Add error class for styling input
+        if (field.errorElement) field.errorElement.textContent = message;
+        field.input.classList.add('input-error');
     }
 
     function clearAllErrors() {
         for (const fieldName in fields) {
             const field = fields[fieldName];
-            if (field.errorElement) {
-                field.errorElement.textContent = '';
-            }
-            field.input.classList.remove('input-error'); // Remove error class from input
+            if (field.errorElement) field.errorElement.textContent = '';
+            field.input.classList.remove('input-error');
         }
-
     }
 
-    // Function to initialize enlarge icons for textareas
     function initializeEnlargeIcons() {
-
         const textareasToEnlargeConfig = [ fields.purpose, fields.trigger, fields.expectedOutput, fields.workflow ];
-      
         textareasToEnlargeConfig.forEach(fieldConfig => {
-            if (!fieldConfig || !fieldConfig.input || !fieldConfig.label) return; // Safety check
-
+            if (!fieldConfig || !fieldConfig.input || !fieldConfig.label) return;
             const textarea = fieldConfig.input;
-
             const wrapper = textarea.parentElement;
-
-
             if (wrapper && wrapper.classList.contains('textarea-wrapper')) {
                 const icon = document.createElement('span');
                 icon.classList.add('enlarge-icon');
-
                 icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 100%; height: 100%;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
                 icon.title = 'Enlarge editor';
-
-
                 const svgElement = icon.querySelector('svg');
                 if (svgElement) svgElement.setAttribute('focusable', 'false');
                 icon.addEventListener('click', () => {
                     currentEditingTextarea = textarea;
                     modalTextarea.value = textarea.value;
-
                     modalTitle.textContent = `Edit ${fieldConfig.label}`;
                     enlargeTextModal.classList.add('active');
-
                     modalTextarea.focus();
                 });
                 wrapper.appendChild(icon);
@@ -274,7 +252,6 @@ fix/form-validation-and-submit
         });
     }
 
-    // Event listener for modal "Done" button
     if (modalDoneButton) {
         modalDoneButton.addEventListener('click', () => {
             if (currentEditingTextarea) currentEditingTextarea.value = modalTextarea.value;
@@ -284,10 +261,9 @@ fix/form-validation-and-submit
         });
     }
 
-    // Optional: Close modal if user clicks on the overlay
     if (enlargeTextModal) {
         enlargeTextModal.addEventListener('click', (event) => {
-            if (event.target === enlargeTextModal) { // Clicked on the overlay itself
+            if (event.target === enlargeTextModal) {
                 if (currentEditingTextarea) currentEditingTextarea.value = modalTextarea.value;
                 enlargeTextModal.classList.remove('active');
                 modalTextarea.value = '';

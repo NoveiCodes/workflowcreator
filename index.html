@@ -9,15 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <!-- <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script> -->
-
 </head>
 <body>
     <div class="container">
         <h1>Workflow Creator</h1>
         <form id="workflowForm">
             <div class="form-group">
-                <label for="purpose">Purpose</label>
-                <textarea id="purpose" name="purpose" rows="4" placeholder="What is the main purpose of the automation? Example: I want an automation that summarizes and categorizes all emails I've received this week. I want the summary emailed to my kiwi email." required></textarea>
+                <label for="purpose">Purpose <span style="color:red">*</span></label>
+                <div class="textarea-wrapper">
+                    <textarea id="purpose" name="purpose" rows="4" placeholder="What is the main purpose of the automation? Example: I want an automation that summarizes and categorizes all emails I've received this week. I want the summary emailed to my kiwi email." required></textarea>
+                </div>
                 <span class="error-message" id="purposeError"></span>
             </div>
 
@@ -77,7 +78,6 @@
             <!-- You can add a spinner or animation here -->
         </div>
 
-
         <!-- Success Modal -->
         <div id="successModal" class="modal-overlay" style="display: none;">
             <div class="success-modal-content">
@@ -87,7 +87,6 @@
                 <p>This will take approximately 5-10 minutes. You'll receive updates via Slack with further details.</p>
                 <button id="modalCreateAnotherWorkflowBtn" class="submit-btn">Create Another n8n Workflow</button>
             </div>
-
         </div>
         <!-- End Success Modal -->
 
