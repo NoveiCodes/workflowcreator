@@ -51,47 +51,7 @@ h1 {
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     transition: border-color 0.3s ease;
-    /* Ensure vertical scrollbar appears if content overflows, and disable manual resize */
 }
-
-.form-group input.input-error,
-.form-group textarea.input-error {
-    border-color: #dc3545; /* Red border for error state */
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2); /* Optional: Red glow */
-}
-
-.form-group textarea {
-    resize: none; /* Disable manual resizing */
-    overflow-y: auto; /* Ensure scrollbar for overflow */
-    padding-right: 30px; /* Space for the icon */
-}
-
-/* Wrapper for textarea and icon */
-.textarea-wrapper {
-    position: relative;
-}
-
-.enlarge-icon {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;  /*Desired width of the icon container */
-    height: 20px; /* Desired height of the icon container */
-    cursor: pointer;
-    color: #555; /* SVG will inherit this color for its 'currentColor' stroke */
-    display: inline-flex; /* Helps to align SVG properly if it's not block */
-    align-items: center;
-    justify-content: center;
-    /* background-color: #f0f0f0; /* For testing visibility */
-    /* border: 1px solid #ccc; For testing visibility */
-    z-index: 1; /* Ensure icon is above textarea's potential content */
-    user-select: none;
-}
-
-.enlarge-icon:hover {
-    color: #00a58e;
-}
-
 
 .form-group input[type="email"]:focus,
 .form-group textarea:focus,
