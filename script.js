@@ -15,20 +15,92 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSuccessModalButton = successModal.querySelector('.close-button');
     const modalCreateAnotherWorkflowBtn = document.getElementById('modalCreateAnotherWorkflowBtn');
 
-    // const confettiCanvas = document.getElementById('confettiCanvas'); // Commented out: Confetti removal
-    // let confettiInstance = null; // Commented out: Confetti removal
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    let confettiInstance = null;
 
-    /* // Commented out: Confetti removal
     function startConfetti() {
-        // ... confetti logic ...
-    }
-    */
+        if (!window.confetti || !confettiCanvas) { // Check window.confetti for global library
+            console.error("Confetti library or canvas not available for start.");
+            return;
+        }
 
-    /* // Commented out: Confetti removal
-    function stopConfetti() {
-        // ... confetti logic ...
+        confettiCanvas.style.display = 'block';
+
+        requestAnimationFrame(() => {
+            if (!confettiInstance) {
+                try {
+                    confettiInstance = window.confetti.create(confettiCanvas, { // Use window.confetti
+                        resize: true,
+                        useWorker: false
+                    });
+                } catch (e) {
+                    console.error("Error creating confetti instance:", e);
+                    return;
+                }
+            }
+
+            if (!confettiInstance) {
+                console.error("Confetti instance is null after attempting creation.");
+                return;
+            }
+
+            // Party popper effect (simple version)
+            const popperColors = ['#00a58e', '#ffc107', '#dc3545', '#0dcaf0'];
+            function firePopper(x, y, angle, particleRatio) {
+                if (!confettiInstance) return;
+                confettiInstance({
+                    particleCount: Math.floor(200 * particleRatio),
+                    spread: 70 + Math.random() * 20,
+                    origin: { x: x, y: y },
+                    angle: angle,
+                    colors: popperColors,
+                    scalar: 1 + Math.random() * 0.5,
+                    gravity: 0.8,
+                    decay: 0.92,
+                    startVelocity: 30 + Math.random() * 15,
+                    ticks: 100,
+                    zIndex: 2050
+                });
+            }
+
+            firePopper(0.1, 0.9, 60, 0.7);
+            firePopper(0.9, 0.9, 120, 0.7);
+
+            let duration = 15 * 1000;
+            let animationEnd = Date.now() + duration;
+            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2050 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            let interval = setInterval(function() {
+                if (!confettiInstance) {
+                    clearInterval(interval);
+                    return;
+                }
+                let timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+                let particleCount = 50 * (timeLeft / duration);
+                confettiInstance(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confettiInstance(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        });
     }
-    */
+
+    function stopConfetti() {
+        if (confettiInstance) {
+            confettiInstance.reset();
+            confettiInstance = null;
+        }
+        if (confettiCanvas) {
+             confettiCanvas.style.display = 'none';
+        } else {
+            console.error("Confetti canvas element not found for stop.");
+        }
+    }
 
     // Input fields and their error message elements for VALIDATION
     const fields = {
@@ -79,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show success modal immediately
         successModal.classList.add('active');
-        // startConfetti(); // Commented out: Confetti removal
+        startConfetti(); // Uncommented to re-enable confetti
 
         // Prepare form data for webhook
         const formData = new FormData(form);
@@ -116,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeTheSuccessModal() {
         successModal.classList.remove('active');
-        // stopConfetti(); // Commented out: Confetti removal
+        stopConfetti(); // Uncommented to stop confetti when modal closes
     }
 
     closeSuccessModalButton.addEventListener('click', closeTheSuccessModal);
