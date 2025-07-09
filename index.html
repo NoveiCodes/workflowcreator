@@ -15,7 +15,7 @@
         <h1>Workflow Creator</h1>
         <form id="workflowForm">
             <div class="form-group">
-                <label for="purpose">Purpose</label>
+                <label for="purpose">Purpose <span style="color:red">*</span></label>
                 <div class="textarea-wrapper">
                     <textarea id="purpose" name="purpose" rows="4" placeholder="What is the main purpose of the automation? Example: I want an automation that summarizes and categorizes all emails I've received this week. I want the summary emailed to my kiwi email." required></textarea>
                 </div>
@@ -23,7 +23,7 @@
             </div>
 
             <div class="form-group">
-                <label for="trigger">Trigger</label>
+                <label for="trigger">Trigger <span style="color:red">*</span></label>
                 <div class="textarea-wrapper">
                     <textarea id="trigger" name="trigger" rows="4" placeholder="When will the automation be triggered and how frequently? Example: I want the summaries sent every Friday 2PM CET. Or: I want a summary sent upon receipt of each email." required></textarea>
                 </div>
@@ -31,7 +31,7 @@
             </div>
 
             <div class="form-group">
-                <label for="expectedOutput">Expected Output</label>
+                <label for="expectedOutput">Expected Output <span style="color:red">*</span></label>
                 <div class="textarea-wrapper">
                     <textarea id="expectedOutput" name="expectedOutput" rows="4" placeholder="What is the expected outcome for the automation? Example: The automation should generate an email that categorizes emails along with the summary for each." required></textarea>
                 </div>
@@ -39,7 +39,7 @@
             </div>
 
             <div class="form-group">
-                <label for="workflow">Workflow</label>
+                <label for="workflow">Workflow <span style="color:red">*</span></label>
                 <div class="textarea-wrapper">
                     <textarea id="workflow" name="workflow" rows="6" placeholder="Describe the process step-by-step. Example:
 1. Every Friday 2PM CET, check all emails received since Monday.
@@ -65,7 +65,7 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email">Email <span style="color:red">*</span></label>
                 <input type="email" id="email" name="email" placeholder="Please provide your kiwi email." required>
                 <span class="error-message" id="emailError"></span>
             </div>

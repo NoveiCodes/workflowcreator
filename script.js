@@ -91,43 +91,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const fields = {
         purpose: {
             input: document.getElementById('purpose'),
-            label: "Purpose",
             errorElement: document.getElementById('purposeError'),
-            defaultError: "Purpose is required."
+            validations: [
+                { type: 'required', message: "Purpose is required." }
+            ]
         },
         trigger: {
             input: document.getElementById('trigger'),
-            label: "Trigger",
             errorElement: document.getElementById('triggerError'),
-            defaultError: "Trigger is required."
+            validations: [
+                { type: 'required', message: "Trigger is required." }
+            ]
         },
         expectedOutput: {
             input: document.getElementById('expectedOutput'),
-            label: "Expected Output",
             errorElement: document.getElementById('expectedOutputError'),
-            defaultError: "Expected Output is required."
+            validations: [
+                { type: 'required', message: "Expected Output is required." }
+            ]
         },
         workflow: {
             input: document.getElementById('workflow'),
-            label: "Workflow",
             errorElement: document.getElementById('workflowError'),
-            defaultError: "Workflow description is required."
+            validations: [
+                { type: 'required', message: "Workflow is required." }
+            ]
         },
-        // 'tools' field is handled differently now
-        toolsErrorElement: document.getElementById('toolsError'), // Keep reference to error element
         email: {
             input: document.getElementById('email'),
             errorElement: document.getElementById('emailError'),
-            defaultError: "Email is required.",
-            kiwiError: "Email must end with @kiwi.com."
+            validations: [
+                { type: 'required', message: "Email is required." },
+                { type: 'emailFormat', message: "Please enter a valid email address." },
+                { type: 'domain', domain: "@kiwi.com", message: "Please use your kiwi.com email address." }
+            ]
         }
+        // Removed toolsErrorElement as "Tools" are no longer validated for being required.
     };
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        clearAllErrors();
+        clearAllErrors(); // This function will also need to be updated to clear new error states
 
         if (!validateForm()) {
+            // Focus on the first invalid field will be handled in validateForm or a subsequent function
             return; // Stop if validation fails
         }
 
@@ -139,11 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const data = {};
         formData.forEach((value, key) => {
+            // Tools are still collected, just not validated as required
             if (key !== 'tools') {
                 data[key] = value;
             }
         });
-        data.tools = [];
+        data.tools = []; // Ensure tools array exists
         toolOptions.forEach(option => {
             if (option.classList.contains('selected')) {
                 data.tools.push(option.getAttribute('data-value'));
@@ -211,85 +219,117 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = event.target;
             if (target.classList.contains('tool-option')) {
                 target.classList.toggle('selected');
-                // Clear error message for tools if any tool is selected
-                if (document.querySelector('.tool-option.selected')) {
-                    fields.toolsErrorElement.textContent = '';
-                }
+                // No error clearing for tools needed here as it's not a required field for validation.
             }
         });
     }
 
+    function isValidEmailFormat(email) {
+        // Basic email validation regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
 
     function validateForm() {
-        let isValid = true;
+        let firstInvalidField = null;
+        let formIsValid = true;
 
-        // Validate required text/textarea fields
-        ['purpose', 'trigger', 'expectedOutput', 'workflow'].forEach(fieldName => {
+        for (const fieldName in fields) {
             const field = fields[fieldName];
-            if (!field.input.value.trim()) {
-                showError(field.errorElement, field.defaultError);
-                isValid = false;
-            }
-        });
+            const value = field.input.value.trim();
+            // Clear previous error styling
+            field.input.classList.remove('input-error');
+            field.errorElement.textContent = '';
 
-        // Validate custom tools
-        const selectedTools = document.querySelectorAll('.tool-option.selected');
-        if (selectedTools.length === 0) {
-            showError(fields.toolsErrorElement, "Please select at least one tool.");
-            isValid = false;
+
+            for (const validation of field.validations) {
+                let currentFieldValid = true;
+                if (validation.type === 'required') {
+                    if (!value) {
+                        showError(field, validation.message);
+                        formIsValid = false;
+                        currentFieldValid = false;
+                        if (!firstInvalidField) firstInvalidField = field.input;
+                    }
+                } else if (validation.type === 'emailFormat') {
+                    if (value && !isValidEmailFormat(value)) {
+                        showError(field, validation.message);
+                        formIsValid = false;
+                        currentFieldValid = false;
+                        if (!firstInvalidField) firstInvalidField = field.input;
+                    }
+                } else if (validation.type === 'domain') {
+                    if (value && !value.endsWith(validation.domain)) {
+                        // Only show domain error if email format is valid or no format error was shown for this field yet
+                        if (isValidEmailFormat(value)) {
+                             showError(field, validation.message);
+                             formIsValid = false;
+                             currentFieldValid = false;
+                             if (!firstInvalidField) firstInvalidField = field.input;
+                        } else if (!field.errorElement.textContent) {
+                            // If format is bad, but no error shown yet (e.g. required passed), show format error instead of domain.
+                            // This assumes 'required' and 'emailFormat' validations run before 'domain'.
+                            const formatValidation = field.validations.find(v => v.type === 'emailFormat');
+                            if (formatValidation) {
+                                showError(field, formatValidation.message);
+                                formIsValid = false;
+                                currentFieldValid = false;
+                                if (!firstInvalidField) firstInvalidField = field.input;
+                            }
+                        }
+                    }
+                }
+                if (!currentFieldValid) break; // Stop further validation for this field if one rule failed
+            }
         }
 
-        // Validate email
-        const emailField = fields.email;
-        if (!emailField.input.value.trim()) {
-            showError(emailField.errorElement, emailField.defaultError); // Pass errorElement
-            isValid = false;
-        } else if (!emailField.input.value.endsWith('@kiwi.com')) {
-            showError(emailField.errorElement, emailField.kiwiError); // Pass errorElement
-            isValid = false;
+        if (firstInvalidField) {
+            firstInvalidField.focus();
         }
         
-        return isValid;
+        return formIsValid;
     }
 
-    function showError(errorElement, message) { // Modified to accept errorElement directly
-        if (errorElement) {
-            errorElement.textContent = message;
+    function showError(field, message) {
+        if (field.errorElement) {
+            field.errorElement.textContent = message;
         }
+        field.input.classList.add('input-error'); // Add error class for styling
     }
 
     function clearAllErrors() {
-        // Clear errors for standard fields
-        ['purpose', 'trigger', 'expectedOutput', 'workflow', 'email'].forEach(fieldName => {
+        for (const fieldName in fields) {
             const field = fields[fieldName];
-            if (field && field.errorElement) {
+            if (field.errorElement) {
                 field.errorElement.textContent = '';
             }
-        });
-        // Clear error for tools
-        if (fields.toolsErrorElement) {
-            fields.toolsErrorElement.textContent = '';
+            field.input.classList.remove('input-error'); // Remove error class
         }
+        // Removed clearing for fields.toolsErrorElement as it's no longer used for validation errors
     }
 
     // Function to initialize enlarge icons for textareas
     function initializeEnlargeIcons() {
-        const textareasToEnlarge = [fields.purpose, fields.trigger, fields.expectedOutput, fields.workflow];
+        // Get the field definitions for textareas that need enlarge icons
+        const textareasToEnlargeConfig = [
+            { fieldRef: fields.purpose, labelText: "Purpose" },
+            { fieldRef: fields.trigger, labelText: "Trigger" },
+            { fieldRef: fields.expectedOutput, labelText: "Expected Output" },
+            { fieldRef: fields.workflow, labelText: "Workflow" }
+        ];
 
-        textareasToEnlarge.forEach(field => {
-            const textarea = field.input;
+        textareasToEnlargeConfig.forEach(config => {
+            const textarea = config.fieldRef.input;
             const wrapper = textarea.parentElement; // Should be .textarea-wrapper
 
             if (wrapper && wrapper.classList.contains('textarea-wrapper')) {
                 const icon = document.createElement('span');
                 icon.classList.add('enlarge-icon');
-                // Use the provided SVG string
                 icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 100%; height: 100%;">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                                   </svg>`;
                 icon.title = 'Enlarge editor'; // Tooltip
 
-                // Ensure the SVG inside the span is not focusable itself, the span is the target.
                 const svgElement = icon.querySelector('svg');
                 if (svgElement) {
                     svgElement.setAttribute('focusable', 'false');
@@ -298,9 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon.addEventListener('click', () => {
                     currentEditingTextarea = textarea;
                     modalTextarea.value = textarea.value;
-                    modalTitle.textContent = `Edit ${field.label || 'Text'}`; // Set modal title
-                    // enlargeTextModal.style.display = 'flex'; // Old way
-                    enlargeTextModal.classList.add('active'); // New way for fade-in
+                    modalTitle.textContent = `Edit ${config.labelText}`; // Use labelText from config
+                    enlargeTextModal.classList.add('active');
                     modalTextarea.focus();
                 });
                 wrapper.appendChild(icon);
