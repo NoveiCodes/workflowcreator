@@ -31,30 +31,39 @@ document.addEventListener('DOMContentLoaded', () => {
     */
 
     // Input fields and their error message elements for VALIDATION
+
     const fields = {
         purpose: {
             input: document.getElementById('purpose'),
             errorElement: document.getElementById('purposeError'),
+fix/form-validation-and-submit
             validations: [ { type: 'required', message: "Purpose is required." } ],
+
             label: "Purpose" // For enlarge modal title
         },
         trigger: {
             input: document.getElementById('trigger'),
             errorElement: document.getElementById('triggerError'),
+
             validations: [ { type: 'required', message: "Trigger is required." } ],
             label: "Trigger"
+
         },
         expectedOutput: {
             input: document.getElementById('expectedOutput'),
             errorElement: document.getElementById('expectedOutputError'),
+
             validations: [ { type: 'required', message: "Expected Output is required." } ],
             label: "Expected Output"
+
         },
         workflow: {
             input: document.getElementById('workflow'),
             errorElement: document.getElementById('workflowError'),
+
             validations: [ { type: 'required', message: "Workflow is required." } ],
             label: "Workflow"
+
         },
         email: {
             input: document.getElementById('email'),
@@ -71,7 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         clearAllErrors();
 
+
         const isValid = validateForm();
+
 
         if (!isValid) {
             return; // Stop if validation fails
@@ -79,7 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show success modal immediately
         successModal.classList.add('active');
+
         // startConfetti(); // Commented out: Confetti removal
+
 
         // Prepare form data for webhook
         const formData = new FormData(form);
@@ -163,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Order of fields for focusing: Purpose, Trigger, Expected Output, Workflow, Email
         const fieldNamesInOrder = ['purpose', 'trigger', 'expectedOutput', 'workflow', 'email'];
 
+
         for (const fieldName of fieldNamesInOrder) {
             const field = fields[fieldName];
             const value = field.input.value.trim();
@@ -220,30 +234,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             field.input.classList.remove('input-error'); // Remove error class from input
         }
+
     }
 
     // Function to initialize enlarge icons for textareas
     function initializeEnlargeIcons() {
+
         const textareasToEnlargeConfig = [ fields.purpose, fields.trigger, fields.expectedOutput, fields.workflow ];
+      
         textareasToEnlargeConfig.forEach(fieldConfig => {
             if (!fieldConfig || !fieldConfig.input || !fieldConfig.label) return; // Safety check
 
             const textarea = fieldConfig.input;
+
             const wrapper = textarea.parentElement;
+
 
             if (wrapper && wrapper.classList.contains('textarea-wrapper')) {
                 const icon = document.createElement('span');
                 icon.classList.add('enlarge-icon');
+
                 icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 100%; height: 100%;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
                 icon.title = 'Enlarge editor';
+
 
                 const svgElement = icon.querySelector('svg');
                 if (svgElement) svgElement.setAttribute('focusable', 'false');
                 icon.addEventListener('click', () => {
                     currentEditingTextarea = textarea;
                     modalTextarea.value = textarea.value;
+
                     modalTitle.textContent = `Edit ${fieldConfig.label}`;
                     enlargeTextModal.classList.add('active');
+
                     modalTextarea.focus();
                 });
                 wrapper.appendChild(icon);
