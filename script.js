@@ -72,10 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAllErrors();
 
         const isValid = validateForm();
-        console.log("Submit handler: validateForm() returned:", isValid); // Submit handler log
 
         if (!isValid) {
-            console.log("Submit handler: Validation failed. Submission stopped."); // Submit handler log
+
             return; // Stop if validation fails
         }
         console.log("Submit handler: Validation passed. Proceeding with submission."); // Submit handler log
@@ -173,33 +172,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 let currentFieldValid = true;
                 if (validation.type === 'required') {
                     if (!value) {
-                        if (fieldName === 'email') console.log(`Email validation: Required check failed for email: "${value}"`);
+
                         showError(field, validation.message);
                         formIsValid = false; currentFieldValid = false;
                         if (!firstInvalidField) firstInvalidField = field.input;
                     }
                 } else if (validation.type === 'emailFormat') {
                     if (value && !isValidEmailFormat(value)) {
-                        if (fieldName === 'email') console.log(`Email validation: Format check failed for email: "${value}". isValidEmailFormat: ${isValidEmailFormat(value)}. Message: ${validation.message}`);
+
                         showError(field, validation.message);
                         formIsValid = false; currentFieldValid = false;
                         if (!firstInvalidField) firstInvalidField = field.input;
-                    } else if (fieldName === 'email' && value) {
-                         console.log(`Email validation: Format check passed for email: "${value}". isValidEmailFormat: ${isValidEmailFormat(value)}`);
                     }
                 } else if (validation.type === 'domain') {
                     if (fieldName === 'email') { // Ensure this is only for the email field
-                        console.log(`Email validation (domain): Current email value: "${value}"`);
                         const isFormatValid = isValidEmailFormat(value);
-                        console.log(`Email validation (domain): isFormatValid: ${isFormatValid}`);
                         const endsWithDomain = value.endsWith(validation.domain);
-                        console.log(`Email validation (domain): endsWith ${validation.domain}? ${endsWithDomain}`);
-
                         const domainCheckCondition = (value && isFormatValid && !endsWithDomain);
-                        console.log(`Email validation (domain): Overall domainCheckCondition: ${domainCheckCondition}`);
 
                         if (domainCheckCondition) {
-                            console.log(`Email validation (domain): Domain error triggered. Message: ${validation.message}`);
+
                             showError(field, validation.message);
                             formIsValid = false; currentFieldValid = false;
                             if (!firstInvalidField) firstInvalidField = field.input;
@@ -210,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (firstInvalidField) firstInvalidField.focus();
-        console.log(`validateForm is returning: ${formIsValid}`);
         return formIsValid;
     }
 

@@ -194,6 +194,7 @@ h1 {
 .modal-overlay.active { /* JavaScript will toggle this class */
     opacity: 1;
     visibility: visible;
+    display: flex !important; /* Override inline display:none for modal to show */
 }
 
 /* Enlarge Text Modal Specific Content Styles */
