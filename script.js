@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confetti && confettiCanvas) { // Check if confetti library is loaded
         confettiInstance = confetti.create(confettiCanvas, {
             resize: true,
-            useWorker: true
+            useWorker: false // Disabled worker to prevent 'transferControlToOffscreen' error
         });
     }
 
