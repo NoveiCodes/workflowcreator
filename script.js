@@ -74,10 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const isValid = validateForm();
 
         if (!isValid) {
-
             return; // Stop if validation fails
         }
-        console.log("Submit handler: Validation passed. Proceeding with submission."); // Submit handler log
 
         // Show success modal immediately
         successModal.classList.add('active');
@@ -172,14 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 let currentFieldValid = true;
                 if (validation.type === 'required') {
                     if (!value) {
-
                         showError(field, validation.message);
                         formIsValid = false; currentFieldValid = false;
                         if (!firstInvalidField) firstInvalidField = field.input;
                     }
                 } else if (validation.type === 'emailFormat') {
                     if (value && !isValidEmailFormat(value)) {
-
                         showError(field, validation.message);
                         formIsValid = false; currentFieldValid = false;
                         if (!firstInvalidField) firstInvalidField = field.input;
@@ -191,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const domainCheckCondition = (value && isFormatValid && !endsWithDomain);
 
                         if (domainCheckCondition) {
-
                             showError(field, validation.message);
                             formIsValid = false; currentFieldValid = false;
                             if (!firstInvalidField) firstInvalidField = field.input;
