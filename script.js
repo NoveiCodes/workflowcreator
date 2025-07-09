@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('workflowForm');
-    // const loadingScreen = document.getElementById('loadingScreen'); // Will be removed or repurposed
-    // const responseMessageContainer = document.getElementById('responseMessage'); // Removed
-    // const createAnotherWorkflowBtn = document.getElementById('createAnotherWorkflowBtn'); // Removed from page bottom
     const toolsContainer = document.getElementById('toolsContainer');
     const toolOptions = document.querySelectorAll('.tool-option');
 
@@ -17,109 +14,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const successModal = document.getElementById('successModal');
     const closeSuccessModalButton = successModal.querySelector('.close-button');
     const modalCreateAnotherWorkflowBtn = document.getElementById('modalCreateAnotherWorkflowBtn');
-    const confettiCanvas = document.getElementById('confettiCanvas');
 
-    // Confetti instance
-    let confettiInstance = null;
-    if (confetti && confettiCanvas) { // Check if confetti library is loaded
-        confettiInstance = confetti.create(confettiCanvas, {
-            resize: true,
-            useWorker: true
-        });
-    }
+    // const confettiCanvas = document.getElementById('confettiCanvas'); // Commented out: Confetti removal
+    // let confettiInstance = null; // Commented out: Confetti removal
 
+    /* // Commented out: Confetti removal
     function startConfetti() {
-        if (!confettiInstance) return;
-
-        // Ensure canvas is visible and sized correctly if it was display:none
-        confettiCanvas.style.display = 'block';
-
-        // Party popper effect (simple version)
-        const popperColors = ['#00a58e', '#ffc107', '#dc3545', '#0dcaf0'];
-        function firePopper(x, y, angle, particleRatio) {
-            confettiInstance({
-                particleCount: Math.floor(200 * particleRatio),
-                spread: 70 + Math.random() * 20, // Wider spread for poppers
-                origin: { x: x, y: y },
-                angle: angle,
-                colors: popperColors,
-                scalar: 1 + Math.random() * 0.5, // Larger particles
-                gravity: 0.8, // Less gravity to shoot "up" more
-                decay: 0.92, // Fade faster
-                startVelocity: 30 + Math.random() * 15,
-                ticks: 100, // Shorter lifespan
-                zIndex: 2050 // Ensure poppers are visually distinct if needed (confettiCanvas handles overall z-index)
-            });
-        }
-
-        // Fire two poppers from bottom corners, angled upwards and inwards
-        firePopper(0.1, 0.9, 60, 0.7); // Left popper
-        firePopper(0.9, 0.9, 120, 0.7); // Right popper
-
-        // Continuous falling confetti
-        let duration = 15 * 1000; // 15 seconds
-        let animationEnd = Date.now() + duration;
-        let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2050 }; // zIndex set on canvas element now
-
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
-
-        let interval = setInterval(function() {
-            let timeLeft = animationEnd - Date.now();
-
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
-            }
-
-            let particleCount = 50 * (timeLeft / duration);
-            // since particles fall down, start a bit higher than random
-            confettiInstance(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-            confettiInstance(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 250);
+        // ... confetti logic ...
     }
+    */
 
+    /* // Commented out: Confetti removal
     function stopConfetti() {
-        if (confettiInstance) {
-            confettiInstance.reset();
-        }
-        if(confettiCanvas) confettiCanvas.style.display = 'none'; // Hide canvas
+        // ... confetti logic ...
     }
+    */
 
-
-    // Input fields and their error message elements
+    // Input fields and their error message elements for VALIDATION
     const fields = {
         purpose: {
             input: document.getElementById('purpose'),
-            label: "Purpose",
             errorElement: document.getElementById('purposeError'),
-            defaultError: "Purpose is required."
+            validations: [ { type: 'required', message: "Purpose is required." } ],
+            label: "Purpose" // For enlarge modal title
         },
         trigger: {
             input: document.getElementById('trigger'),
-            label: "Trigger",
             errorElement: document.getElementById('triggerError'),
-            defaultError: "Trigger is required."
+            validations: [ { type: 'required', message: "Trigger is required." } ],
+            label: "Trigger"
         },
         expectedOutput: {
             input: document.getElementById('expectedOutput'),
-            label: "Expected Output",
             errorElement: document.getElementById('expectedOutputError'),
-            defaultError: "Expected Output is required."
+            validations: [ { type: 'required', message: "Expected Output is required." } ],
+            label: "Expected Output"
         },
         workflow: {
             input: document.getElementById('workflow'),
-            label: "Workflow",
             errorElement: document.getElementById('workflowError'),
-            defaultError: "Workflow description is required."
+            validations: [ { type: 'required', message: "Workflow is required." } ],
+            label: "Workflow"
         },
-        // 'tools' field is handled differently now
-        toolsErrorElement: document.getElementById('toolsError'), // Keep reference to error element
         email: {
             input: document.getElementById('email'),
             errorElement: document.getElementById('emailError'),
-            defaultError: "Email is required.",
-            kiwiError: "Email must end with @kiwi.com."
+            validations: [
+                { type: 'required', message: "Email is required." },
+                { type: 'emailFormat', message: "Please enter a valid email address." },
+                { type: 'domain', domain: "@kiwi.com", message: "Please use your kiwi.com email address." }
+            ]
         }
     };
 
@@ -127,23 +71,25 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         clearAllErrors();
 
-        if (!validateForm()) {
+        const isValid = validateForm();
+
+        if (!isValid) {
             return; // Stop if validation fails
         }
 
         // Show success modal immediately
         successModal.classList.add('active');
-        startConfetti();
+        // startConfetti(); // Commented out: Confetti removal
 
         // Prepare form data for webhook
         const formData = new FormData(form);
         const data = {};
         formData.forEach((value, key) => {
-            if (key !== 'tools') {
+            if (key !== 'tools') { // Tools are still collected but not validated as required
                 data[key] = value;
             }
         });
-        data.tools = [];
+        data.tools = []; // Ensure tools array exists even if none selected
         toolOptions.forEach(option => {
             if (option.classList.contains('selected')) {
                 data.tools.push(option.getAttribute('data-value'));
@@ -152,34 +98,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const webhookUrl = 'https://kiwicom.app.n8n.cloud/webhook/f831c5d5-975e-4877-98e1-b50990c18194';
 
-        // Send data to webhook in the background
         try {
             const response = await fetch(webhookUrl, {
                 method: 'POST',
                 body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
-
             if (!response.ok) {
-                // Log error or handle silently as per requirements (modal is already shown)
                 console.error("Error submitting to webhook:", response.status, await response.text());
-                // Optionally, you could update a non-critical part of the UI or send a silent log
             } else {
                 console.log("Webhook submission successful");
             }
         } catch (error) {
             console.error("Network error submitting to webhook:", error);
-            // Handle network error silently or log
         }
-        // The form remains visible but overlaid by the modal
-        // No need to hide form or show loading screen here.
     });
 
     function closeTheSuccessModal() {
         successModal.classList.remove('active');
-        stopConfetti();
+        // stopConfetti(); // Commented out: Confetti removal
     }
 
     closeSuccessModalButton.addEventListener('click', closeTheSuccessModal);
@@ -199,11 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
     modalCreateAnotherWorkflowBtn.addEventListener('click', () => {
         closeTheSuccessModal();
         form.reset();
-        clearAllErrors();
+        clearAllErrors(); // Clear errors when resetting form
         toolOptions.forEach(option => option.classList.remove('selected'));
-        // Form is already visible, no need to change its display style
     });
-
 
     // Event listener for tool selection
     if (toolsContainer) {
@@ -211,96 +146,91 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = event.target;
             if (target.classList.contains('tool-option')) {
                 target.classList.toggle('selected');
-                // Clear error message for tools if any tool is selected
-                if (document.querySelector('.tool-option.selected')) {
-                    fields.toolsErrorElement.textContent = '';
-                }
             }
         });
     }
 
+    function isValidEmailFormat(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
 
     function validateForm() {
-        let isValid = true;
+        let firstInvalidField = null;
+        let formIsValid = true;
+        const fieldNamesInOrder = ['purpose', 'trigger', 'expectedOutput', 'workflow', 'email'];
 
-        // Validate required text/textarea fields
-        ['purpose', 'trigger', 'expectedOutput', 'workflow'].forEach(fieldName => {
+        for (const fieldName of fieldNamesInOrder) {
             const field = fields[fieldName];
-            if (!field.input.value.trim()) {
-                showError(field.errorElement, field.defaultError);
-                isValid = false;
+            const value = field.input.value.trim();
+            field.input.classList.remove('input-error');
+            field.errorElement.textContent = '';
+
+            for (const validation of field.validations) {
+                let currentFieldValid = true;
+                if (validation.type === 'required') {
+                    if (!value) {
+                        showError(field, validation.message);
+                        formIsValid = false; currentFieldValid = false;
+                        if (!firstInvalidField) firstInvalidField = field.input;
+                    }
+                } else if (validation.type === 'emailFormat') {
+                    if (value && !isValidEmailFormat(value)) {
+                        showError(field, validation.message);
+                        formIsValid = false; currentFieldValid = false;
+                        if (!firstInvalidField) firstInvalidField = field.input;
+                    }
+                } else if (validation.type === 'domain') {
+                    if (fieldName === 'email') { // Ensure this is only for the email field
+                        const isFormatValid = isValidEmailFormat(value);
+                        const endsWithDomain = value.endsWith(validation.domain);
+                        const domainCheckCondition = (value && isFormatValid && !endsWithDomain);
+
+                        if (domainCheckCondition) {
+                            showError(field, validation.message);
+                            formIsValid = false; currentFieldValid = false;
+                            if (!firstInvalidField) firstInvalidField = field.input;
+                        }
+                    }
+                }
+                if (!currentFieldValid) break;
             }
-        });
-
-        // Validate custom tools
-        const selectedTools = document.querySelectorAll('.tool-option.selected');
-        if (selectedTools.length === 0) {
-            showError(fields.toolsErrorElement, "Please select at least one tool.");
-            isValid = false;
         }
-
-        // Validate email
-        const emailField = fields.email;
-        if (!emailField.input.value.trim()) {
-            showError(emailField.errorElement, emailField.defaultError); // Pass errorElement
-            isValid = false;
-        } else if (!emailField.input.value.endsWith('@kiwi.com')) {
-            showError(emailField.errorElement, emailField.kiwiError); // Pass errorElement
-            isValid = false;
-        }
-        
-        return isValid;
+        if (firstInvalidField) firstInvalidField.focus();
+        return formIsValid;
     }
 
-    function showError(errorElement, message) { // Modified to accept errorElement directly
-        if (errorElement) {
-            errorElement.textContent = message;
-        }
+    function showError(field, message) {
+        if (field.errorElement) field.errorElement.textContent = message;
+        field.input.classList.add('input-error');
     }
 
     function clearAllErrors() {
-        // Clear errors for standard fields
-        ['purpose', 'trigger', 'expectedOutput', 'workflow', 'email'].forEach(fieldName => {
+        for (const fieldName in fields) {
             const field = fields[fieldName];
-            if (field && field.errorElement) {
-                field.errorElement.textContent = '';
-            }
-        });
-        // Clear error for tools
-        if (fields.toolsErrorElement) {
-            fields.toolsErrorElement.textContent = '';
+            if (field.errorElement) field.errorElement.textContent = '';
+            field.input.classList.remove('input-error');
         }
     }
 
-    // Function to initialize enlarge icons for textareas
     function initializeEnlargeIcons() {
-        const textareasToEnlarge = [fields.purpose, fields.trigger, fields.expectedOutput, fields.workflow];
-
-        textareasToEnlarge.forEach(field => {
-            const textarea = field.input;
-            const wrapper = textarea.parentElement; // Should be .textarea-wrapper
-
+        const textareasToEnlargeConfig = [ fields.purpose, fields.trigger, fields.expectedOutput, fields.workflow ];
+        textareasToEnlargeConfig.forEach(fieldConfig => {
+            if (!fieldConfig || !fieldConfig.input || !fieldConfig.label) return;
+            const textarea = fieldConfig.input;
+            const wrapper = textarea.parentElement;
             if (wrapper && wrapper.classList.contains('textarea-wrapper')) {
                 const icon = document.createElement('span');
                 icon.classList.add('enlarge-icon');
-                // Use the provided SVG string
-                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 100%; height: 100%;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                                  </svg>`;
-                icon.title = 'Enlarge editor'; // Tooltip
-
-                // Ensure the SVG inside the span is not focusable itself, the span is the target.
+                icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 100%; height: 100%;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
+                icon.title = 'Enlarge editor';
                 const svgElement = icon.querySelector('svg');
-                if (svgElement) {
-                    svgElement.setAttribute('focusable', 'false');
-                }
-
+                if (svgElement) svgElement.setAttribute('focusable', 'false');
                 icon.addEventListener('click', () => {
                     currentEditingTextarea = textarea;
                     modalTextarea.value = textarea.value;
-                    modalTitle.textContent = `Edit ${field.label || 'Text'}`; // Set modal title
-                    // enlargeTextModal.style.display = 'flex'; // Old way
-                    enlargeTextModal.classList.add('active'); // New way for fade-in
+                    modalTitle.textContent = `Edit ${fieldConfig.label}`;
+                    enlargeTextModal.classList.add('active');
                     modalTextarea.focus();
                 });
                 wrapper.appendChild(icon);
@@ -308,36 +238,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Event listener for modal "Done" button
     if (modalDoneButton) {
         modalDoneButton.addEventListener('click', () => {
-            if (currentEditingTextarea) {
-                currentEditingTextarea.value = modalTextarea.value;
-                // Optionally, trigger an input event if other parts of the app react to it
-                // currentEditingTextarea.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-            // enlargeTextModal.style.display = 'none'; // Old way
-            enlargeTextModal.classList.remove('active'); // New way
-            modalTextarea.value = ''; // Clear modal textarea
+            if (currentEditingTextarea) currentEditingTextarea.value = modalTextarea.value;
+            enlargeTextModal.classList.remove('active');
+            modalTextarea.value = '';
             currentEditingTextarea = null;
         });
     }
 
-    // Optional: Close modal if user clicks on the overlay
     if (enlargeTextModal) {
         enlargeTextModal.addEventListener('click', (event) => {
-            if (event.target === enlargeTextModal) { // Clicked on the overlay itself
-                if (currentEditingTextarea) { // Save changes even when clicking outside
-                    currentEditingTextarea.value = modalTextarea.value;
-                }
-                // enlargeTextModal.style.display = 'none'; // Old way
-                enlargeTextModal.classList.remove('active'); // New way
+            if (event.target === enlargeTextModal) {
+                if (currentEditingTextarea) currentEditingTextarea.value = modalTextarea.value;
+                enlargeTextModal.classList.remove('active');
                 modalTextarea.value = '';
                 currentEditingTextarea = null;
             }
         });
     }
-
-    // Initialize features
     initializeEnlargeIcons();
 });

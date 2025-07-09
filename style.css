@@ -54,6 +54,12 @@ h1 {
     /* Ensure vertical scrollbar appears if content overflows, and disable manual resize */
 }
 
+.form-group input.input-error,
+.form-group textarea.input-error {
+    border-color: #dc3545 !important; /* Red border for error state */
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2); /* Optional: Red glow */
+}
+
 .form-group textarea {
     resize: none; /* Disable manual resizing */
     overflow-y: auto; /* Ensure scrollbar for overflow */
@@ -188,6 +194,7 @@ h1 {
 .modal-overlay.active { /* JavaScript will toggle this class */
     opacity: 1;
     visibility: visible;
+    display: flex !important; /* Override inline display:none for modal to show */
 }
 
 /* Enlarge Text Modal Specific Content Styles */
